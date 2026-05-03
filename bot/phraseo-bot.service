@@ -1,0 +1,27 @@
+[Unit]
+Description=Phraseology Trainer Telegram Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=phraseo
+Group=phraseo
+WorkingDirectory=/opt/phraseo-bot/bot
+EnvironmentFile=/etc/phraseo-bot.env
+ExecStart=/opt/phraseo-bot/.venv/bin/python /opt/phraseo-bot/bot/main.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# basic hardening — read-only fs except the data dir
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/phraseo-bot
+StateDirectory=phraseo-bot
+
+[Install]
+WantedBy=multi-user.target

@@ -32,7 +32,7 @@ ROOT = Path(__file__).resolve().parent
 load_dotenv(ROOT / ".env")
 
 BOT_TOKEN = os.environ["BOT_TOKEN"]
-ORTHO_DATA = (ROOT / os.environ.get("ORTHO_DATA", "../out/ortho.json")).resolve()
+ORTHO_DATA = (ROOT / os.environ.get("ORTHO_DATA", "../out/ortho_rows.json")).resolve()
 PROGRESS_DB = (ROOT / os.environ.get("PROGRESS_DB", "./progress.sqlite3")).resolve()
 
 

@@ -17,9 +17,9 @@ GREETING = (
     "• №10 — правописание приставок\n"
     "• №11 — правописание суффиксов\n"
     "• №12 — личные окончания глаголов и суффиксы причастий\n\n"
-    "Показываю задание с пятью рядами слов — ты пишешь номера рядов, "
-    "где пропущена одна и та же буква. Например: <code>124</code> "
-    "(порядок и запятые не важны).\n\n"
+    "Показываю один ряд слов с пропусками — ты пишешь буквы, которых не "
+    "хватает, через запятую и по порядку слов. Например для ряда "
+    "<i>сош..ют, пас..янс, без..языкий</i> ответ: <code>ь, ь, ъ</code>.\n\n"
     "Тему можно выбрать командой /topic. Жми «Поехали!» 🚀"
 )
 
@@ -30,7 +30,8 @@ HELP = (
     "/start — начать заново\n"
     "/topic — выбрать тему (или все вперемешку)\n"
     "/stats — статистика\n\n"
-    "Ответ — номера рядов: <code>124</code>, <code>1 2 4</code> или <code>1,2,4</code>."
+    "Ответ — пропущенные буквы по порядку слов: <code>ь, ь, ъ</code>, "
+    "<code>ь ь ъ</code> или <code>ььъ</code>. Ё можно писать как Е."
 )
 
 
@@ -39,11 +40,16 @@ def topic_name(task_no: int | None) -> str:
 
 
 ASK = {
+    "letters": "Напиши пропущенные буквы через запятую.",
     "rows": "Напиши номера рядов.",
     "word": "Выпиши слово (или оба слова ряда), вставив пропущенную букву.",
 }
 
 NUDGE = {
+    "letters": (
+        "Жду только буквы — например <code>ь, ь, ъ</code>. "
+        "Если не знаешь — жми «Сдаюсь»."
+    ),
     "rows": (
         "Жду номера рядов — например <code>124</code>. "
         "Если не знаешь — жми «Сдаюсь»."
@@ -56,17 +62,20 @@ NUDGE = {
 
 
 def render_task(task: dict, seq: int | None = None) -> str:
-    rows = "\n".join(
-        f"<b>{n})</b> {html.escape(text)}"
-        for n, text in sorted(task["rows"].items(), key=lambda kv: int(kv[0]))
-    )
+    kind = task.get("answer_kind", "rows")
     head = f"<i>Задание {task['task_no']} — {html.escape(task['topic'])}</i>"
-    hint = ASK[task.get("answer_kind", "rows")]
+    if kind == "letters":
+        body = f"<b>{html.escape(task['row'])}</b>"
+    else:
+        body = "\n".join(
+            f"<b>{n})</b> {html.escape(text)}"
+            for n, text in sorted(task["rows"].items(), key=lambda kv: int(kv[0]))
+        )
     return (
         f"{head}\n\n"
         f"{html.escape(task['prompt'])}\n\n"
-        f"{rows}\n\n"
-        f"{hint}"
+        f"{body}\n\n"
+        f"{ASK[kind]}"
     )
 
 

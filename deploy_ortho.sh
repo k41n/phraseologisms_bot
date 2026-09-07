@@ -27,8 +27,8 @@ if [[ ! -f "${LOCAL_ENV}" ]]; then
   red "Missing ${LOCAL_ENV}. Create it from bot_ortho/.env.example before deploying."
   exit 1
 fi
-if [[ ! -f "${PROJECT_ROOT}/out/ortho.json" ]]; then
-  red "Missing out/ortho.json. Run 'python3 collect_ortho.py && python3 merge_ortho.py' first."
+if [[ ! -f "${PROJECT_ROOT}/out/ortho_rows.json" ]]; then
+  red "Missing out/ortho_rows.json. Run 'python3 collect_ortho.py && python3 merge_ortho.py && python3 split_ortho.py' first."
   exit 1
 fi
 
@@ -54,7 +54,7 @@ rsync -az --delete \
   --exclude='.pytest_cache' --exclude='cache/' \
   --exclude='bot_ortho/.env' --exclude='bot_ortho/progress.sqlite3' \
   --exclude='bot_ortho/tests' \
-  --include='out/ortho.json' \
+  --include='out/ortho_rows.json' \
   -e ssh \
   "${PROJECT_ROOT}/bot_ortho" \
   "${PROJECT_ROOT}/out" \
@@ -62,6 +62,7 @@ rsync -az --delete \
   "${PROJECT_ROOT}/collect_ortho.py" \
   "${PROJECT_ROOT}/parse_fipi.py" \
   "${PROJECT_ROOT}/merge_ortho.py" \
+  "${PROJECT_ROOT}/split_ortho.py" \
   "${SSH_HOST}:${APP_DIR}/"
 
 green "→ Installing/refreshing Python venv"
@@ -81,7 +82,7 @@ TMP_ENV=$(mktemp)
 trap 'rm -f "${TMP_ENV}"' EXIT
 {
   grep -E '^BOT_TOKEN=' "${LOCAL_ENV}"
-  echo "ORTHO_DATA=${APP_DIR}/out/ortho.json"
+  echo "ORTHO_DATA=${APP_DIR}/out/ortho_rows.json"
   echo "PROGRESS_DB=${DATA_DIR}/progress.sqlite3"
 } > "${TMP_ENV}"
 scp -q "${TMP_ENV}" "${SSH_HOST}:${ENV_FILE_REMOTE}"

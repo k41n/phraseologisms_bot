@@ -39,3 +39,21 @@ def test_looks_like_answer_by_kind():
     assert answer.looks_like_answer("бреют", "word")
     assert not answer.looks_like_answer("124", "word")
     assert not answer.looks_like_answer("бреют", "rows")
+
+
+def test_letters_keep_order_and_ignore_separators():
+    assert answer.normalise_letters("Ь, ь, Ъ") == "ььъ"
+    assert answer.is_correct("ь, ь, ъ", "ь, ь, ъ", "letters")
+    assert answer.is_correct("ььъ", "ь, ь, ъ", "letters")
+    assert answer.is_correct("Е,Е,Е", "ё, ё, ё", "letters")
+    assert not answer.is_correct("ь, ъ, ь", "ь, ь, ъ", "letters")
+    assert not answer.is_correct("ь, ь", "ь, ь, ъ", "letters")
+    assert not answer.is_correct("", "ь, ь, ъ", "letters")
+
+
+def test_looks_like_letters():
+    assert answer.looks_like_answer("а, а, а", "letters")
+    assert answer.looks_like_answer("ааа", "letters")
+    assert not answer.looks_like_answer("не знаю", "letters")
+    assert not answer.looks_like_answer("124", "letters")
+    assert not answer.looks_like_answer("", "letters")

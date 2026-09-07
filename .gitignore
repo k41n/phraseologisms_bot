@@ -6,3 +6,5 @@ bot/.env
 bot/progress.sqlite3
 .pytest_cache/
 .DS_Store
+bot_ortho/.env
+bot_ortho/progress.sqlite3

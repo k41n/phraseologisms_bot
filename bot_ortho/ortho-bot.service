@@ -1,0 +1,27 @@
+[Unit]
+Description=Orthography Trainer Telegram Bot (ЕГЭ 9-12)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ortho
+Group=ortho
+WorkingDirectory=/opt/ortho-bot/bot_ortho
+EnvironmentFile=/etc/ortho-bot.env
+ExecStart=/opt/ortho-bot/.venv/bin/python /opt/ortho-bot/bot_ortho/main.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# basic hardening — read-only fs except the data dir
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/ortho-bot
+StateDirectory=ortho-bot
+
+[Install]
+WantedBy=multi-user.target

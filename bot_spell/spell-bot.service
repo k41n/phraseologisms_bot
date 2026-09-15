@@ -1,0 +1,27 @@
+[Unit]
+Description=Spelling Trainer Telegram Bot (ЕГЭ 13-14)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=spell
+Group=spell
+WorkingDirectory=/opt/spell-bot/bot_spell
+EnvironmentFile=/etc/spell-bot.env
+ExecStart=/opt/spell-bot/.venv/bin/python /opt/spell-bot/bot_spell/main.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# basic hardening — read-only fs except the data dir
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/spell-bot
+StateDirectory=spell-bot
+
+[Install]
+WantedBy=multi-user.target

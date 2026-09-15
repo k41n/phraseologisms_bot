@@ -8,3 +8,5 @@ bot/progress.sqlite3
 .DS_Store
 bot_ortho/.env
 bot_ortho/progress.sqlite3
+bot_spell/.env
+bot_spell/progress.sqlite3

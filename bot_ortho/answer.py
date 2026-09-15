@@ -8,13 +8,16 @@ Some ФИПИ tasks instead ask to write out the word (or the pair of words) wit
 the missing letter filled in. Those are graded on letters alone too.
 
 The row-number form ("124") is still understood: it is what the exam itself
-asks for, and older banks are graded with it.
+asks for, and older banks are graded with it. Task №15 is one sentence with
+numbered gaps and is answered the same way, with the digits ("digits" — the
+same grading, but the gaps run past 5).
 """
 from __future__ import annotations
 
 import re
 
 _DIGITS_RE = re.compile(r"[1-5]")
+_DIGITS9_RE = re.compile(r"[1-9]")
 _NON_LETTER_RE = re.compile(r"[^а-я]")
 _SEPARATOR_RE = re.compile(r"[\s,.;:/|+\-–—]+")
 
@@ -34,7 +37,15 @@ def normalise_letters(s: str) -> str:
     return normalise_word(s)
 
 
+def normalise_digits(s: str) -> str:
+    """"4, 2 и 1" → "124" — like normalise(), but №15 can number past five."""
+    return "".join(sorted(set(_DIGITS9_RE.findall(s or ""))))
+
+
 def is_correct(user_input: str, expected: str, kind: str = "rows") -> bool:
+    if kind == "digits":
+        user = normalise_digits(user_input)
+        return bool(user) and user == normalise_digits(expected)
     if kind == "letters":
         user = normalise_letters(user_input)
         return bool(user) and user == normalise_letters(expected)
@@ -47,6 +58,8 @@ def is_correct(user_input: str, expected: str, kind: str = "rows") -> bool:
 
 def looks_like_answer(s: str, kind: str = "rows") -> bool:
     """True if the message is plausibly an answer of the given kind."""
+    if kind == "digits":
+        return bool(_DIGITS9_RE.search(s or "")) and not re.search(r"[а-яa-z]", (s or "").lower())
     if kind == "letters":
         # Up to four letters and nothing else: "ь, ь, ъ", "ььъ", "ь ь ъ".
         return bool(re.fullmatch(r"[а-яё]{1,4}", _SEPARATOR_RE.sub("", (s or "").lower())))

@@ -18,8 +18,9 @@ The letters are recovered from the sdamgia разбор, which spells every word
     in the key, not all equal for a row that is not.
 
 Rows that fail either check are dropped: a trainer that grades wrongly is worse
-than a smaller bank. ФИПИ tasks answered with a written-out word (answer_kind
-"word") are copied over untouched.
+than a smaller bank. Tasks that are already a single question — ФИПИ's
+"выпишите слово" and №15's sentence with numbered gaps — are copied over
+untouched.
 """
 from __future__ import annotations
 
@@ -193,18 +194,18 @@ def main() -> None:
     bank = json.loads((OUT / "ortho.json").read_text(encoding="utf-8"))
     stats: Counter = Counter()
     out: list[dict] = []
-    words_tasks = 0
+    whole_tasks = 0
     for task in bank:
-        if task.get("answer_kind") == "word":
+        if task.get("answer_kind", "rows") != "rows":
             out.append(task)
-            words_tasks += 1
+            whole_tasks += 1
             continue
         out.extend(row_items(task, stats))
 
-    by_no: Counter = Counter(t["task_no"] for t in out if t["answer_kind"] == "letters")
+    by_no: Counter = Counter(t["task_no"] for t in out)
     print(
-        f"[split] {len(out)} заданий — рядов {len(out) - words_tasks}, "
-        f"ФИПИ «выпишите слово» {words_tasks}"
+        f"[split] {len(out)} заданий — рядов {len(out) - whole_tasks}, "
+        f"целиком {whole_tasks}"
     )
     print("        " + ", ".join(f"№{k}={v}" for k, v in sorted(by_no.items())))
     print("        пропущено: " + ", ".join(f"{k} {v}" for k, v in stats.most_common()))

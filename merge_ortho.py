@@ -2,7 +2,7 @@
 """
 Merge the two orthography sources into one bank: out/ortho.json.
 
-  out/ortho_sdamgia.json  — 9–12 from rus-ege.sdamgia.ru (answer + разбор)
+  out/ortho_sdamgia.json  — 9–12 and 15 from rus-ege.sdamgia.ru (answer + разбор)
   out/ortho_fipi.json     — the same task types straight from the ФИПИ bank
   out/fipi_answers.json   — {guid: "digits"} filled in by solve_fipi.py
 
@@ -27,6 +27,9 @@ def norm_row(s: str) -> str:
 
 
 def row_key(task: dict) -> tuple:
+    """What makes two tasks the same: their rows, or №15's sentence."""
+    if "rows" not in task:
+        return (norm_row(task["sentence"]),)
     return tuple(sorted(norm_row(v) for v in task["rows"].values()))
 
 
@@ -55,7 +58,7 @@ def main() -> None:
     for t in sd:
         t = dict(t)
         t["answer"] = canon_answer(t["answer"])
-        t["answer_kind"] = "rows"
+        t.setdefault("answer_kind", "rows")
         if not t["answer"]:
             continue
         seen.add(row_key(t))

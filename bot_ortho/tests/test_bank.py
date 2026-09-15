@@ -17,10 +17,16 @@ def test_bank_is_not_empty():
 
 def test_every_task_has_answer_and_topic():
     for t in BANK:
-        assert t["task_no"] in (9, 10, 11, 12), t["id"]
-        assert t["answer_kind"] in ("letters", "word"), t["id"]
+        assert t["task_no"] in (9, 10, 11, 12, 15), t["id"]
+        assert t["answer_kind"] in ("letters", "word", "digits"), t["id"]
         assert t["prompt"].strip(), t["id"]
-        if t["answer_kind"] == "letters":
+        if t["answer_kind"] == "digits":
+            assert re.fullmatch(r"[1-9]+", t["answer"]), t["id"]
+            assert t["answer"] == "".join(sorted(set(t["answer"]))), t["id"]
+            # every digit of the answer must be a gap of the sentence
+            gaps = set(re.findall(r"\((\d)\)", t["sentence"]))
+            assert gaps and set(t["answer"]) <= gaps, t["id"]
+        elif t["answer_kind"] == "letters":
             assert re.fullmatch(r"[а-яё](, [а-яё])+", t["answer"]), t["id"]
             assert len(t["words"]) == len(t["answer"].split(", ")), t["id"]
             assert t["row"] == ", ".join(t["words"]), t["id"]
@@ -56,6 +62,7 @@ def test_rendering_fits_telegram_limit():
         assert len(messages.render_task(t)) < 4096, t["id"]
         assert len(messages.render_correct(t, 0)) < 4096, t["id"]
         assert len(messages.render_wrong(t, "и, и, и")) < 4096, t["id"]
+        assert len(messages.render_giveup(t)) < 4096, t["id"]
 
 
 def test_every_answer_grades_itself():
